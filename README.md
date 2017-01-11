@@ -12,3 +12,10 @@ $ cd /path/to/surgeConf2yaml
 $ chmod +x surgeConf2yaml
 ```
 
+## 执行
+
+```
+$ ./surgeConf2yaml
+```
+
+
