@@ -1,13 +1,11 @@
 #!/bin/bash
 
-if [[ $1 == "" ]] 
-then
+if [[ $1 == "" ]];then
 	echo "error.. need file path of surge.conf "
 	exit 1
 fi
 
-if [[ $2 == "" ]] 
-then
+if [[ $2 == "" ]];then
 	echo 没有参数2, 直接输出到默认~/.SpechtLite路径下
 fi
 path=${2:-"~/.SpechtLite"}
@@ -15,14 +13,12 @@ path=${2:-"~/.SpechtLite"}
 # 将proxy和direct的规则分离到文件
 cat $1 | while read oneline
 do
-	echo $oneline
+#	echo $oneline
 	
 	# 去除需要代理的行
-	if [[ $oneline == *Proxy* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]]
-	then
+	if [[ $oneline == *Proxy* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]];then
 		# 去掉结尾的FINAL的代理
-		if [[ $oneline == *FINAL* ]]
-		then
+		if [[ $oneline == *FINAL* ]];then
 			break
 		fi
 		
@@ -31,8 +27,7 @@ do
 		result=${result%,*Proxy*}
 		
 		# 如果行内有 ／ 则为proxy的ip范围
-		if [[ $oneline == */* ]]
-		then
+		if [[ $oneline == */* ]];then
 			echo $result >> $path/proxyiprange
 		# 没有则导出到 proxylist
 		else
@@ -43,16 +38,14 @@ do
 		
 		
 	# 取出直连的行		
-	if [[ $oneline == *DIRECT* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]]
-	then
+	if [[ $oneline == *DIRECT* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]];then
 		
 		# 取出，之间的内容
 		result=${oneline#*,}
 		result=${result%,*DIRECT*}
 		
 		# 如果行内有 ／ 则为direct的ip范围
-		if [[ $oneline == */* ]]
-		then
+		if [[ $oneline == */* ]];then
 			echo $result >> $path/directiprange
 		else
 			echo ${result//\./\\.} >> $path/directlist
@@ -62,15 +55,18 @@ do
 	
 	
 	# 取出需要拒绝的行	
-	if [[ $oneline == *REJECT* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]]
-	then
+	if [[ $oneline == *REJECT* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]];then
 		# 取出，之间的内容
 		result=${oneline#*,}
 		result=${result%,*REJECT*}
 		
+		# 如果有注释的行
+		if [[ $oneline == *//* ]];then
+			echo $oneline
+		fi	
+		
 		# 如果行内有 ／ 则为direct的ip范围
-		if [[ $oneline == */* ]]
-		then
+		if [[ $oneline == */* ]];then
 			echo $result >> $path/rejectiprange
 		else
 			echo ${result//\./\\.} >> $path/rejectlist
