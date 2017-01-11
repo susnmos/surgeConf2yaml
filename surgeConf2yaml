@@ -1,0 +1,68 @@
+#!/bin/bash
+
+# 将proxy和direct的规则分离到文件
+cat Mac-DNS.conf | while read oneline
+do
+	echo $oneline
+	
+	# 去除需要代理的行
+	if [[ $oneline == *Proxy* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]]
+	then
+		# 去掉结尾的FINAL的代理
+		if [[ $oneline == *FINAL* ]]
+		then
+			break
+		fi
+		
+		# 取出，之间的内容
+		result=${oneline#*,}
+		result=${result%,*Proxy*}
+		
+		# 如果行内有 ／ 则为proxy的ip范围
+		if [[ $oneline == */* ]]
+		then
+			echo $result >> ~/.SpechtLite/proxyiprange
+		# 没有则导出到 proxylist
+		else
+			echo ${result//\./\\.} >> ~/.SpechtLite/proxylist			
+		fi	
+		
+	fi
+		
+		
+	# 取出直连的行		
+	if [[ $oneline == *DIRECT* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]]
+	then
+		
+		# 取出，之间的内容
+		result=${oneline#*,}
+		result=${result%,*DIRECT*}
+		
+		# 如果行内有 ／ 则为direct的ip范围
+		if [[ $oneline == */* ]]
+		then
+			echo $result >> ~/.SpechtLite/directiprange
+		else
+			echo ${result//\./\\.} >> ~/.SpechtLite/directlist
+		fi
+
+	fi
+	
+	
+	# 取出需要拒绝的行	
+	if [[ $oneline == *REJECT* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]]
+	then
+		# 取出，之间的内容
+		result=${oneline#*,}
+		result=${result%,*REJECT*}
+		
+		# 如果行内有 ／ 则为direct的ip范围
+		if [[ $oneline == */* ]]
+		then
+			echo $result >> ~/.SpechtLite/rejectiprange
+		else
+			echo ${result//\./\\.} >> ~/.SpechtLite/rejectlist
+		fi	
+
+	fi
+done
