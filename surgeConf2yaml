@@ -1,7 +1,19 @@
 #!/bin/bash
 
+if [[ $1 == "" ]] 
+then
+	echo "error.. need file path of surge.conf "
+	exit 1
+fi
+
+if [[ $2 == "" ]] 
+then
+	echo 没有参数2, 直接输出到默认~/.SpechtLite路径下
+fi
+path=${2:-"~/.SpechtLite"}
+
 # 将proxy和direct的规则分离到文件
-cat Mac-DNS.conf | while read oneline
+cat $1 | while read oneline
 do
 	echo $oneline
 	
@@ -21,10 +33,10 @@ do
 		# 如果行内有 ／ 则为proxy的ip范围
 		if [[ $oneline == */* ]]
 		then
-			echo $result >> ~/.SpechtLite/proxyiprange
+			echo $result >> $path/proxyiprange
 		# 没有则导出到 proxylist
 		else
-			echo ${result//\./\\.} >> ~/.SpechtLite/proxylist			
+			echo ${result//\./\\.} >> $path/proxylist			
 		fi	
 		
 	fi
@@ -41,9 +53,9 @@ do
 		# 如果行内有 ／ 则为direct的ip范围
 		if [[ $oneline == */* ]]
 		then
-			echo $result >> ~/.SpechtLite/directiprange
+			echo $result >> $path/directiprange
 		else
-			echo ${result//\./\\.} >> ~/.SpechtLite/directlist
+			echo ${result//\./\\.} >> $path/directlist
 		fi
 
 	fi
@@ -59,9 +71,9 @@ do
 		# 如果行内有 ／ 则为direct的ip范围
 		if [[ $oneline == */* ]]
 		then
-			echo $result >> ~/.SpechtLite/rejectiprange
+			echo $result >> $path/rejectiprange
 		else
-			echo ${result//\./\\.} >> ~/.SpechtLite/rejectlist
+			echo ${result//\./\\.} >> $path/rejectlist
 		fi	
 
 	fi

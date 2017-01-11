@@ -15,7 +15,7 @@ $ chmod +x surgeConf2yaml
 ## 执行
 
 ```
-$ ./surgeConf2yaml
+$ ./surgeConf2yaml /path/for/surge.conf /path/to/output
 ```
 
 
