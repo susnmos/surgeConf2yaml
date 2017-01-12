@@ -1,7 +1,7 @@
 #!/bin/bash
 
 OUTPUTANNLINE=NO
-while  getopts  "p:o:y"  arg   
+while  getopts  "p:o:y"  arg #选项后面的冒号表示该选项需要参数  
 do  
 	 case  $arg  in  
 		 p)
@@ -43,11 +43,11 @@ annotateLine() {
 	fi
 		
 }
-echo ------- $SOURCEPATH
+
 # 将proxy和direct的规则分离到文件
-cat $SOURCEPATH | while read oneline
+cat "$SOURCEPATH" | while read oneline
 do
-#	echo $oneline
+	echo read --- $oneline --- line
 	
 	# 去除需要代理的行
 	if [[ $oneline == *Proxy* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]];then
@@ -115,3 +115,8 @@ do
 		fi
 	fi
 done
+echo 
+echo
+echo \>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>successful\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>
+echo \>\>\>\>   在 $OUTPATH 可以找到生成的文件 
+echo \>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>successful\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>
