@@ -1,17 +1,51 @@
 #!/bin/bash
 
-if [[ $1 == "" ]];then
-	echo "error.. need file path of surge.conf "
-	exit 1
-fi
+OUTPUTANNLINE=NO
+while  getopts  "p:o:y"  arg   
+do  
+	 case  $arg  in  
+		 p)
+			echo source file path：$OPTARG 
+			SOURCEPATH=$OPTARG
+			;;
+		 o)  
+			echo 将内容导出到： $OPTARG 
+			OUTPATH=$OPTARG
+			;; 
+		 y)  
+			echo  需要将注释行也导出 
+			OUTPUTANNLINE=YES
+			;;  
+		? )  #当有不认识的选项的时候arg为 ?  
+		echo  " unkonw argument "  
+	exit		
+	esac  
+done 
+OUTPATH=${OUTPATH:-"$HOME/.SpechtLite"}
 
-if [[ $2 == "" ]];then
-	echo 没有参数2, 直接输出到默认~/.SpechtLite路径下
-fi
-path=${2:-"~/.SpechtLite"}
-
+# 处理行内存在// 注释的情况
+annotateLine() {	
+	echo $1
+	# 去掉注释部分后的line
+	lastline=${1%//*}
+	# 注释行
+	if [[ $lastline == "" ]];then
+		echo 注释行
+	# 未注释行
+	else
+		echo 未注释行：$lastline	
+		# 有注释的行, 行内有 ／ 则为direct的ip范围
+		if [[ $lastline == */* ]];then
+			echo $2 >> $OUTPATH/$4
+		else
+			echo ${2//\./\\.} >> $OUTPATH/$3
+		fi	
+	fi
+		
+}
+echo ------- $SOURCEPATH
 # 将proxy和direct的规则分离到文件
-cat $1 | while read oneline
+cat $SOURCEPATH | while read oneline
 do
 #	echo $oneline
 	
@@ -26,31 +60,39 @@ do
 		result=${oneline#*,}
 		result=${result%,*Proxy*}
 		
-		# 如果行内有 ／ 则为proxy的ip范围
-		if [[ $oneline == */* ]];then
-			echo $result >> $path/proxyiprange
-		# 没有则导出到 proxylist
+		# 如果有注释的行
+		if [[ $oneline == *//* ]];then
+			annotateLine "$oneline" "$result" "proxylist" "proxyiprange"
 		else
-			echo ${result//\./\\.} >> $path/proxylist			
-		fi	
+			# 没有注释的行 如果行内有 ／ 则为proxy的ip范围
+			if [[ $oneline == */* ]];then
+				echo $result >> $OUTPATH/proxyiprange
+			# 没有则导出到 proxylist
+			else
+				echo ${result//\./\\.} >> $OUTPATH/proxylist			
+			fi	
+		fi
 		
 	fi
 		
 		
 	# 取出直连的行		
 	if [[ $oneline == *DIRECT* ]] && [[ $oneline != *=* ]] && [[ $oneline != *[* ]];then
-		
 		# 取出，之间的内容
 		result=${oneline#*,}
 		result=${result%,*DIRECT*}
 		
-		# 如果行内有 ／ 则为direct的ip范围
-		if [[ $oneline == */* ]];then
-			echo $result >> $path/directiprange
+		# 如果有注释的行
+		if [[ $oneline == *//* ]];then
+			annotateLine "$oneline" "$result" "directlist" "directiprange"
 		else
-			echo ${result//\./\\.} >> $path/directlist
+			# 没有注释的行，如果行内有 ／ 则为direct的ip范围
+			if [[ $oneline == */* ]];then
+				echo $result >> $OUTPATH/directiprange
+			else
+				echo ${result//\./\\.} >> $OUTPATH/directlist
+			fi	
 		fi
-
 	fi
 	
 	
@@ -62,15 +104,14 @@ do
 		
 		# 如果有注释的行
 		if [[ $oneline == *//* ]];then
-			echo $oneline
-		fi	
-		
-		# 如果行内有 ／ 则为direct的ip范围
-		if [[ $oneline == */* ]];then
-			echo $result >> $path/rejectiprange
+			annotateLine "$oneline" "$result" "rejectlist" "rejectiprange"
 		else
-			echo ${result//\./\\.} >> $path/rejectlist
-		fi	
-
+			# 没有注释的行，如果行内有 ／ 则为direct的ip范围
+			if [[ $oneline == */* ]];then
+				echo $result >> $OUTPATH/rejectiprange
+			else
+				echo ${result//\./\\.} >> $OUTPATH/rejectlist
+			fi
+		fi
 	fi
 done
