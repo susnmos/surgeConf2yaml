@@ -13,10 +13,10 @@ $ chmod +x surgeConf2yaml
 ```
 
 ## 执行
-> 参数 `p` 表示 `surge` 的配置文件路径，`-o` 表示输出到哪个目录下（可选），默认输出到`~/.SpechtLite`
+> 参数 `p` 表示 `surge` 的配置文件路径，`-o` 表示输出到哪个目录下（可选），默认输出到`~/.SpechtLite`，`-y`表示需要导出注释的行到文件
 
 ```
-$ ./surgeConf2yaml -p /path/for/surge.conf -o /path/to/output
+$ ./surgeConf2yaml -p /path/for/surge.conf -o /path/to/output -y
 ```
 
 

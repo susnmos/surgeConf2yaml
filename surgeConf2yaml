@@ -25,20 +25,35 @@ OUTPATH=${OUTPATH:-"$HOME/.SpechtLite"}
 
 # 处理行内存在// 注释的情况
 annotateLine() {	
+	# 行
 	echo $1
 	# 去掉注释部分后的line
 	lastline=${1%//*}
-	# 注释行
+
 	if [[ $lastline == "" ]];then
 		echo 注释行
-	# 未注释行
+		# 注释行, 如果导出文件不是定义ip范围的文件，则导出（因为该文件不支持注释）		
+		if [[ $OUTPUTANNLINE == 'YES' ]] && [[ $2 != */* ]];then
+			# 导出注释的行
+			echo \#\#${2//\./\\.} >> $OUTPATH/$3
+		fi
+	# 存在尾部注释行
 	else
-		echo 未注释行：$lastline	
-		# 有注释的行, 行内有 ／ 则为direct的ip范围
-		if [[ $lastline == */* ]];then
-			echo $2 >> $OUTPATH/$4
+		# 注释行
+		if [[ $lastline == *//* ]];then
+			# 将注释符转化为#
+			lastline=${lastline////#}
+			if [[ $lastline != */* ]];then
+				echo \#\#${2//\./\\.} >> $OUTPATH/$3
+			fi	
 		else
-			echo ${2//\./\\.} >> $OUTPATH/$3
+		# 非注释行
+			# 有注释的行, 行内有 ／ 则为direct的ip范围
+			if [[ $lastline == */* ]];then
+				echo $2 >> $OUTPATH/$4
+			else
+				echo ${2//\./\\.} >> $OUTPATH/$3
+			fi	
 		fi	
 	fi
 		
@@ -115,8 +130,8 @@ do
 		fi
 	fi
 done
+
 echo 
-echo
 echo \>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>successful\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>
 echo \>\>\>\>   在 $OUTPATH 可以找到生成的文件 
 echo \>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>successful\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>\>
