@@ -35,24 +35,25 @@ annotateLine() {
 		# 注释行, 如果导出文件不是定义ip范围的文件，则导出（因为该文件不支持注释）		
 		if [[ $OUTPUTANNLINE == 'YES' ]] && [[ $2 != */* ]];then
 			# 导出注释的行
-			echo \#\#${2//\./\\.} >> $OUTPATH/$3
+			echo \#\#${2//\./\\.} >> "$OUTPATH"/$3
 		fi
 	# 存在尾部注释行
 	else
 		# 注释行
-		if [[ $lastline == *//* ]];then
+		if [[ $lastline == *//* ]] && [[ $OUTPUTANNLINE == 'YES' ]];then
 			# 将注释符转化为#
-			lastline=${lastline////#}
+			lastline=${lastline#*/}
+			lastline=${lastline#*/}			
 			if [[ $lastline != */* ]];then
-				echo \#\#${2//\./\\.} >> $OUTPATH/$3
+				echo \#\#${2//\./\\.} >> "$OUTPATH"/$3
 			fi	
 		else
 		# 非注释行
 			# 有注释的行, 行内有 ／ 则为direct的ip范围
 			if [[ $lastline == */* ]];then
-				echo $2 >> $OUTPATH/$4
+				echo $2 >> "$OUTPATH"/$4
 			else
-				echo ${2//\./\\.} >> $OUTPATH/$3
+				echo ${2//\./\\.} >> "$OUTPATH"/$3
 			fi	
 		fi	
 	fi
@@ -81,10 +82,10 @@ do
 		else
 			# 没有注释的行 如果行内有 ／ 则为proxy的ip范围
 			if [[ $oneline == */* ]];then
-				echo $result >> $OUTPATH/proxyiprange
+				echo $result >> "$OUTPATH"/proxyiprange
 			# 没有则导出到 proxylist
 			else
-				echo ${result//\./\\.} >> $OUTPATH/proxylist			
+				echo ${result//\./\\.} >> "$OUTPATH"/proxylist			
 			fi	
 		fi
 		
@@ -103,9 +104,9 @@ do
 		else
 			# 没有注释的行，如果行内有 ／ 则为direct的ip范围
 			if [[ $oneline == */* ]];then
-				echo $result >> $OUTPATH/directiprange
+				echo $result >> "$OUTPATH"/directiprange
 			else
-				echo ${result//\./\\.} >> $OUTPATH/directlist
+				echo ${result//\./\\.} >> "$OUTPATH"/directlist
 			fi	
 		fi
 	fi
@@ -123,9 +124,9 @@ do
 		else
 			# 没有注释的行，如果行内有 ／ 则为direct的ip范围
 			if [[ $oneline == */* ]];then
-				echo $result >> $OUTPATH/rejectiprange
+				echo $result >> "$OUTPATH"/rejectiprange
 			else
-				echo ${result//\./\\.} >> $OUTPATH/rejectlist
+				echo ${result//\./\\.} >> "$OUTPATH"/rejectlist
 			fi
 		fi
 	fi
