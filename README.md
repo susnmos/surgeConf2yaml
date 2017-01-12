@@ -19,6 +19,7 @@ $ chmod +x surgeConf2yaml
 $ ./surgeConf2yaml -p /path/for/surge.conf -o /path/to/output -y
 ```
 
-
+## 已知问题
+当配置文件最后一行没有回车时，无法读取该行
 
 
