@@ -1,7 +1,8 @@
 #!/bin/bash
 
 OUTPUTANNLINE=NO
-while  getopts  "p:o:y"  arg #选项后面的冒号表示该选项需要参数  
+OVERRIDEFILE=NO
+while  getopts  "p:o:yf"  arg #选项后面的冒号表示该选项需要参数  
 do  
 	 case  $arg  in  
 		 p)
@@ -16,12 +17,50 @@ do
 			echo  需要将注释行也导出 
 			OUTPUTANNLINE=YES
 			;;  
+		 f)
+			echo 将会覆盖已存在的文件
+			OVERRIDEFILE=YES
+			;;	
 		? )  #当有不认识的选项的时候arg为 ?  
 		echo  " unkonw argument "  
 	exit		
 	esac  
 done 
 OUTPATH=${OUTPATH:-"$HOME/.SpechtLite"}
+
+createFile() {
+	filename="$1"
+	if [ -s "$filename" ];then
+		echo "当前目录存在文件且有内容: "$filename""
+		if [[ $2 == 'override' ]];then
+			echo 删除文件 "$filename"
+			rm -rf "$filename"
+			touch "$filename"
+			echo 创建文件成功
+		fi	
+	else
+		echo "当前目录不存在文件\或者为空: "$filename""
+		if [ -f "$filename" ];then
+			echo 存在文件，但是为空
+		else
+			echo 文件不存在	
+			touch "$filename"
+			echo 已创建文件 "$filename"
+		fi	
+	fi
+}
+
+# 是否需要覆盖文件
+if [[ $OVERRIDEFILE == 'YES' ]];then
+	isOverrideFile=override
+fi	
+
+createFile $OUTPATH/directlist $isOverrideFile
+createFile $OUTPATH/directiprange $isOverrideFile
+createFile $OUTPATH/proxylist $isOverrideFile
+createFile $OUTPATH/proxyiprange $isOverrideFile
+createFile $OUTPATH/rejectlist $isOverrideFile
+createFile $OUTPATH/rejectiprange $isOverrideFile
 
 # 处理行内存在// 注释的情况
 annotateLine() {	
